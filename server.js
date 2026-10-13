@@ -24,7 +24,9 @@ app.get('/inicio',(req,res)=>{
 app.get('/register',(req,res)=>{
     res.render("register")
 })
-
+app.get('/resetpassword',(req,res)=>{
+    res.render('resetpassword')
+})
 
 app.listen(PORT,()=>{
     console.log(`rodando em: http://localhost:${PORT}`)
