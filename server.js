@@ -10,12 +10,19 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
+
+
+
 app.get('/',(req,res)=>{
     res.render('index')
 })
 
 app.get('/inicio',(req,res)=>{
     res.render("dashboard")
+})
+
+app.get('/register',(req,res)=>{
+    res.render("register")
 })
 
 
