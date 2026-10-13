@@ -13,6 +13,13 @@ app.use(express.json());
 app.get('/',(req,res)=>{
     res.render('index')
 })
+
+app.get('/inicio',(req,res)=>{
+    res.render("dashboard")
+})
+
+
 app.listen(PORT,()=>{
     console.log(`rodando em: http://localhost:${PORT}`)
 })
+
