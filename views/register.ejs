@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cadastre-se</title>
     <link rel="stylesheet" href="css/style.css">   
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
     <style>
         body{
             background-color:#0b080b;
@@ -29,7 +31,7 @@
         .button{
             border-radius: 6px;
             height: 30px;
-            width:  90px;
+            width:  120px;
             background-color:#211720;
             border:none;
             color:#B7A8B5;
@@ -64,6 +66,21 @@
             background-color:rgb(89, 62, 97);
             color:#B7A8B5;
         }
+        .input-container{
+       display: flex;
+       align-items: center;
+       justify-content: center; 
+       gap: 8px;
+       width: 100%;
+        }
+        .input-container input {
+         margin-top: 0;
+            }
+            .toggle-icon {
+    color: #B7A8B5;
+    cursor: pointer;
+    font-size: 1.1rem;
+}
     </style>
 </head>
 <body>
@@ -73,15 +90,29 @@
         <h3 class="textos registro" >CADASTRE-SE</h3>
         <label for="email" class="textos"><strong>Informe seu email:</strong></label>
         <input name="email" id="email" placeholder="insira seu email." autofocus class="textos">
+        
         <label for="senha" class="textos"><strong>Insira sua senha:</strong></label>
-        <input name="senha" id="senha" placeholder="Insira sua senha." autofocus class="textos">
-         <label for="senha" class="textos"><strong>Repita sua senha:</strong></label>
-        <input name="senha" id="senha" placeholder="Insira sua senha." autofocus class="textos">
-        <button type="submit" class="button">Cadastre-se</button>
+        <div class="input-container">
+        <input type="password" name="senha" id="senha" placeholder="Insira sua senha." autofocus class="textos">
+        <i class="bi bi-eye-fill toggle-icon" onclick="mostrarsenha(this)"></i>
+        </div>
+
+        <label for="confirmar-senha" class="textos"><strong>Repita sua senha:</strong></label>
+        <div class="input-container">
+            <input name="senha" id="confirmar-senha" placeholder="Insira sua senha." class="textos" type="password">
+            <i class="bi bi-eye-fill toggle-icon" onclick="mostrarsenha(this)"></i>
+        </div>
+        
+        
+      <button type="submit" class="button">Cadastre-se</button>
         <a href="/" >Já possui uma conta? Faça Login!</a>
     </form>
   
     </div>
   
+    <script src="script/main.js">
+    
+    </script>
+
 </body>
 </html>
