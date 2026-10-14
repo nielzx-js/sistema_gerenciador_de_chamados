@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verificação duas etapas</title>
+</head>
+<body>
+    <form method="POST" action="/verify"> 
+        <label for="code">Insira o código:</label>
+        <input type="text" placeholder="código de 6 dígitos" maxlength="6" inputmode="numeric" name="codigoDigitado">
+        <button type="submit">Enviar</button>
+    </form>
+    <a href="/"><- voltar para o login</a>
+</body>
+</html>
