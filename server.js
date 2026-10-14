@@ -68,7 +68,82 @@ app.post('/register', async (req,res)=>{
             from:process.env.EMAIL,
             to:email,
             subject:"código de verificação",
-            text:`seu código de verificação é: ${codigoVerificacao}`
+            html:`
+            <div style="
+            background-color: #0b080b;
+            padding: 35px 20px;
+            font-family: Arial, sans-serif;
+            color: #F4EDF3;
+        ">
+            <div style="
+                max-width: 450px;
+                margin: 0 auto;
+                background-color: #160f15;
+                border: 1px solid #51404F;
+                border-radius: 12px;
+                padding: 30px;
+                text-align: center;
+            ">
+                <h1 style="
+                    color: #A875A0;
+                    font-size: 25px;
+                    margin-bottom: 20px;
+                ">
+                    Verificação de conta
+                </h1>
+
+                <p style="
+                    color: #B7A8B5;
+                    font-size: 15px;
+                    line-height: 1.6;
+                ">
+                    Utilize o código abaixo para confirmar seu e-mail.
+                </p>
+
+                <div style="
+                    background-color: #211720;
+                    border: 1px solid #51404F;
+                    border-radius: 8px;
+                    padding: 18px 10px;
+                    margin: 25px 0;
+                ">
+                    <span style="
+                        color: #A875A0;
+                        font-size: 30px;
+                        font-weight: bold;
+                        letter-spacing: 8px;
+                    ">
+                        ${codigoVerificacao}
+                    </span>
+                </div>
+
+                <p style="
+                    color: #B7A8B5;
+                    font-size: 13px;
+                    line-height: 1.5;
+                ">
+                    Este código é válido por 10 minutos.
+                    Não compartilhe com ninguém.
+                </p>
+
+                <div style="
+                    border-top: 1px solid #51404F;
+                    margin-top: 25px;
+                    padding-top: 18px;
+                ">
+                    <p style="
+                        color: #B7A8B5;
+                        font-size: 12px;
+                        margin: 0;
+                    ">
+                        Se você não solicitou este cadastro,
+                        ignore esta mensagem.
+                    </p>
+                </div>
+            </div>
+        </div>
+            `
+
         })
          req.session.cadastro = {
          email,
@@ -94,7 +169,7 @@ app.post('/verify',(req,res)=>{
     if(!cadastro){
         return res.status(400).send("Cadasto expirado")
     }
-    if(String(codigoVerificacao)===codigoDigitado){
+    if(String(cadastro.codigoVerificacao)===codigoDigitado){
         res.redirect('/inicio')
     }
 return res.status(400).send("Codigo incorreto")
