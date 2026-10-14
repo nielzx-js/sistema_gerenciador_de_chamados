@@ -121,7 +121,7 @@
         <p class="subtitle">Digite o código de 6 dígitos enviado para você.</p>
 
         <form method="POST" action="/verify" class="form-verify" id="otpForm">
-            <input type="hidden" name="codigoDigitado" id="codigoCompleto">
+            <input type="hidden" name="codigoDigitado" id="codigoDigitado">
             <div class="otp-container">
                 <input type="text" class="otp-input" maxlength="1" inputmode="numeric" pattern="[0-9]" required autocomplete="one-time-code">
                 <input type="text" class="otp-input" maxlength="1" inputmode="numeric" pattern="[0-9]" required>
@@ -139,7 +139,7 @@
 
     <script>
         const inputs = document.querySelectorAll('.otp-input');
-        const hiddenInput = document.getElementById('codigoCompleto');
+        const hiddenInput = document.getElementById('codigoDigitado');
         const form = document.getElementById('otpForm');
 
         inputs.forEach((input, index) => {
@@ -149,7 +149,7 @@
                     inputs[index + 1].focus();
                 }
             });
-s
+
             input.addEventListener('keydown', (e) => {
                 if (e.key === 'Backspace' && !input.value && index > 0) {
                     inputs[index - 1].focus();
@@ -166,11 +166,25 @@ s
                 }
             });
         });
-        form.addEventListener('submit', () => {
-            let code = '';
-            inputs.forEach(input => code += input.value);
-            hiddenInput.value = code;
-        });
+       //inicio do trecho gerado por IA
+    form.addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    const code = Array.from(inputs)
+        .map(input => input.value.trim())
+        .join('');
+
+    if (!/^\d{6}$/.test(code)) {
+        alert('Digite os 6 números do código.');
+        return;
+    }
+
+    hiddenInput.value = code;
+
+    form.submit();
+    //fim do trecho gerado por IA
+});
+
     </script>
 </body>
 </html>

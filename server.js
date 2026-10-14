@@ -54,8 +54,20 @@ app.get('/register',(req,res)=>{
 
   
 app.post('/register', async (req,res)=>{
-     
-    const {email,senha1,senha2} = req.body
+ const {email,senha1,senha2} = req.body
+
+     const query = 'SELECT * FROM usuarios WHERE email = $1';
+    const result = await pool.query(query, [email]);
+
+    if (result.rows.length > 0) {
+     return res.send(`
+        <script>
+            alert('Usuário já cadastrado');
+            history.back();
+        </script>
+    `);
+}
+   
   
     if(senha1 !== senha2){
         return res.status(400).send("as senhas não são iguais")
@@ -163,16 +175,30 @@ app.get('/verify',(req,res)=>{
     res.render('verify')
 
 })
-app.post('/verify',(req,res)=>{
+app.post('/verify',async (req,res)=>{
     const {codigoDigitado} = req.body
     const cadastro=req.session.cadastro
     if(!cadastro){
         return res.status(400).send("Cadasto expirado")
     }
-    if(String(cadastro.codigoVerificacao)===codigoDigitado){
-        res.redirect('/inicio')
+
+    console.log('Código salvo:', cadastro.codigoVerificacao);
+    console.log('Código digitado:', codigoDigitado);
+    console.log('Cadastro na sessão:', cadastro);
+    if(String(cadastro.codigoVerificacao)===String(codigoDigitado)){
+        try{
+          const query = 'INSERT INTO usuarios (email, senha) VALUES ($1, $2) RETURNING id, email';
+          const values = [cadastro.email, cadastro.senhaHash];  
+          const result= await pool.query(query,values)
+          delete req.session.cadastro
+          return res.redirect('/inicio')
+        }catch(error){
+          console.error('Erro ao salvar usuário no Neon:', error);
+          return res.status(500).send("Erro ao finalizar cadastro no banco de dados.");
+        }
     }
 return res.status(400).send("Codigo incorreto")
+
 })
 
 
