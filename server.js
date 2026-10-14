@@ -12,6 +12,16 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
+
+//middlewares   
+function verificarLogin(req, res, next) {
+    if (!req.session.usuario) {
+        return res.redirect('/login');
+    }
+
+    next();
+}
+
 //transporter
 
 const transporter = nodemailer.createTransport({
@@ -71,7 +81,7 @@ app.post('/login', async (req,res)=>{
 
 
 //inicio
-app.get('/inicio',(req,res)=>{
+app.get('/inicio',verificarLogin,(req,res)=>{
     res.render("dashboard")
 })
 
@@ -249,7 +259,16 @@ app.get('/resetpassword',(req,res)=>{
 })
 
 
-
+//logout
+app.post('/logout',(req,res,next)=>{
+    req.session.destroy((err)=>{
+        if(err){
+            return next(err)
+        }
+        res.clearCookie('connect.sid')
+        return res.redirect('/')
+    })
+})
 
 
 app.listen(PORT,()=>{
