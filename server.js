@@ -38,6 +38,37 @@ app.get('/',(req,res)=>{
     res.render('index')
 })
 
+app.post('/login', async (req,res)=>{
+    const {email,senha}=req.body;
+    const query='SELECT * FROM usuarios WHERE email=$1'
+    const result=await pool.query(query,[email])
+    if(result.rows.length===0){
+       return res.send(`
+            <script>
+            alert('Usuario ou senha incorreto')
+            history.back()
+            </script>
+            `)
+    }
+    const usuario=result.rows[0]
+    const senhaCorreta= await bcrypt.compare(senha,usuario.senha)
+    if(!senhaCorreta){
+        return res.send(`
+            <script>
+            alert('Usuario ou senha incorreto')
+            history.back()
+            </script>
+            `)
+    
+    }
+    req.session.usuario = {
+    id: usuario.id,
+    email: usuario.email
+};
+    res.redirect('/inicio')
+})
+
+
 
 //inicio
 app.get('/inicio',(req,res)=>{
