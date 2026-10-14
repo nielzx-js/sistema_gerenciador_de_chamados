@@ -12,18 +12,34 @@ app.use(express.json());
 
 
 
-
+//login
 app.get('/',(req,res)=>{
     res.render('index')
 })
 
+
+//inicio
 app.get('/inicio',(req,res)=>{
     res.render("dashboard")
 })
 
+
+//cadastro
+
+
 app.get('/register',(req,res)=>{
     res.render("register")
 })
+app.post('/register',(req,res)=>{
+    const {senha1,senha2} = req.body
+    if(senha1 !== senha2){
+        return res.status(400).send("as senhas não são iguais")
+    }
+
+    //confirmação
+})
+
+//recuperação de senha
 app.get('/resetpassword',(req,res)=>{
     res.render('resetpassword')
 })
