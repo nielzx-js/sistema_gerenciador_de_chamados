@@ -4,10 +4,8 @@ const pool = require('./database');
 const app = express();
 const PORT = 3000;
 const nodemailer = require("nodemailer");
-
-
-
-
+const bcrypt = require('bcrypt');
+const session = require('express-session');
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 app.use(express.static(path.join(__dirname, 'public')));
@@ -21,8 +19,19 @@ const transporter = nodemailer.createTransport({
     auth: {
         user: process.env.EMAIL,
         pass: process.env.EMAIL_SENHA
-    }
+    },
+    connectionTimeout: 15000,
+    greetingTimeout: 10000,
+    socketTimeout: 30000
 });
+
+//session
+app.use(session({
+    secret:process.env.SESSION_SECRET,
+    resave:false,
+    saveUninitialized: false
+}))
+
 
 //login
 app.get('/',(req,res)=>{
@@ -43,22 +52,34 @@ app.get('/register',(req,res)=>{
     res.render("register")
 })
 
-  let codigoVerificacao;
+  
 app.post('/register', async (req,res)=>{
+     
     const {email,senha1,senha2} = req.body
+  
     if(senha1 !== senha2){
         return res.status(400).send("as senhas não são iguais")
     }
 
-    /* inicio do trecho gerado por IA */
-    codigoVerificacao = Math.floor(100000 + Math.random() * 900000);
-    /* fim do trecho gerado por IA */
-    await transporter.sendMail({
-        from:process.env.EMAIL,
-        to:email,
-        subject:"código de verificação",
-        text:`seu código de verificação é: ${codigoVerificacao}`
-    })
+    try {
+       let senhaHash= await bcrypt.hash(senha1, 10);
+        const codigoVerificacao = Math.floor(100000 + Math.random() * 900000);
+        await transporter.sendMail({
+            from:process.env.EMAIL,
+            to:email,
+            subject:"código de verificação",
+            text:`seu código de verificação é: ${codigoVerificacao}`
+        })
+         req.session.cadastro = {
+         email,
+         senhaHash,
+         codigoVerificacao
+        };  
+    } catch (error) {
+        console.error('Erro ao preparar cadastro ou enviar e-mail de verificação:', error);
+        return res.status(500).send("Não foi possível enviar o e-mail de verificação. Confira as configurações de e-mail do servidor e tente novamente.");
+    }
+   
    res.redirect('/verify')
 })
 
@@ -69,6 +90,10 @@ app.get('/verify',(req,res)=>{
 })
 app.post('/verify',(req,res)=>{
     const {codigoDigitado} = req.body
+    const cadastro=req.session.cadastro
+    if(!cadastro){
+        return res.status(400).send("Cadasto expirado")
+    }
     if(String(codigoVerificacao)===codigoDigitado){
         res.redirect('/inicio')
     }
@@ -98,4 +123,3 @@ app.get('/resetpassword',(req,res)=>{
 app.listen(PORT,()=>{
     console.log(`rodando em: http://localhost:${PORT}`)
 })
-
