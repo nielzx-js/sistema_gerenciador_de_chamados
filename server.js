@@ -15,7 +15,7 @@ app.use(express.json());
 //middlewares   
 function verificarLogin(req, res, next) {
     if (!req.session.usuario) {
-        return res.redirect('/login');
+        return res.redirect('/');
     }
 
     next();
