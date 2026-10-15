@@ -232,11 +232,11 @@ app.post('/verify',async (req,res)=>{
           const result= await pool.query(query,values)
           delete req.session.cadastro
           return res.send(`
-    <script>
+     <script>
         alert('Cadastro realizado com sucesso!');
-        window.location.href = '/login';
+        window.location.href = '/';
     </script>
-`);
+        `);
         }catch(error){
           console.error('Erro ao salvar usuário no Neon:', error);
           return res.status(500).send("Erro ao finalizar cadastro no banco de dados.");
