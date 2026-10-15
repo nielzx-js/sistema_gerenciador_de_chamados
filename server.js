@@ -2,7 +2,6 @@ const express = require('express');
 const path = require('path');
 const pool = require('./database');
 const app = express();
-const PORT = process.env.PORT;
 const nodemailer = require("nodemailer");
 const bcrypt = require('bcrypt');
 const session = require('express-session');
@@ -270,7 +269,12 @@ app.post('/logout',(req,res,next)=>{
     })
 })
 
+const PORT = process.env.PORT || 3000;
 
-app.listen(PORT,()=>{
-    console.log(`rodando em: http://localhost:${PORT}`)
-})
+if (require.main === module) {
+    app.listen(PORT, () => {
+        console.log(`Servidor rodando na porta ${PORT}`);
+    });
+}
+
+module.exports = app;
