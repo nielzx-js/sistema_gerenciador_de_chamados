@@ -30,4 +30,3 @@ form.addEventListener("submit", (event) => {
     erro.textContent = "";
     erro2.textContent = "";
 })
-

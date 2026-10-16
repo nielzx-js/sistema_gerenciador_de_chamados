@@ -279,6 +279,40 @@ app.get('/resetpassword',(req,res)=>{
     res.render('resetpassword')
 })
 
+//CRUD
+app.post('/editar/:id',verificarLogin, async (req,res)=>{
+const { titulo, descricao, prioridade} = req.body;
+    const query=`
+     UPDATE chamados
+    SET titulo = $1,
+        descricao = $2,
+        prioridade = $3,
+        atualizado_em = CURRENT_TIMESTAMP
+    WHERE id = $4
+    AND usuario_id = $5;`
+
+    const id=req.session.usuario.id
+    const chamadoId = req.params.id;
+    const result= await pool.query(query,[titulo,descricao,prioridade,chamadoId,id])
+    if (result.rowCount > 0) {
+    return res.send(`
+        <script>
+            alert('Chamado atualizado com sucesso!');
+            window.location.href = '/inicio';
+        </script>
+    `);
+    } else {
+    return res.send(`
+        <script>
+            alert('Não foi possível atualizar o chamado!');
+            window.location.href = '/inicio';
+        </script>
+    `);
+    }
+})
+
+
+
 
 //logout
 app.post('/logout',(req,res,next)=>{
