@@ -80,26 +80,9 @@ app.post('/login', async (req,res)=>{
 
 
 //inicio
-app.get('/inicio',verificarLogin,async (req,res)=>{
-   const id = req.session.usuario.id
-    const query=`
-    SELECT *
-    FROM chamados
-    WHERE usuario_id = $1
-    ORDER BY
-    CASE
-        WHEN status = 'aberto' THEN 1
-        WHEN status = 'em_andamento' THEN 2
-        WHEN status = 'resolvido' THEN 3
-        ELSE 4
-    END,
-    criado_em DESC; `
-
-    const result= await pool.query(query,[id])
-
-    res.render("dashboard",{chamados: result.rows})
+app.get('/inicio',(req,res)=>{
+    res.render('dashboard')
 })
-
 
 
 //cadastro
@@ -298,19 +281,37 @@ const { titulo, descricao, prioridade} = req.body;
     return res.send(`
         <script>
             alert('Chamado atualizado com sucesso!');
-            window.location.href = '/inicio';
+            window.location.href = '/chamados';
         </script>
     `);
     } else {
     return res.send(`
         <script>
             alert('Não foi possível atualizar o chamado!');
-            window.location.href = '/inicio';
+            window.location.href = '/chamados';
         </script>
     `);
     }
 })
 
+app.get('/chamados',verificarLogin, async (req,res)=>{
+    const id = req.session.usuario.id
+    const query=`
+    SELECT *
+    FROM chamados
+    WHERE usuario_id = $1
+    ORDER BY
+    CASE
+        WHEN status = 'aberto' THEN 1
+        WHEN status = 'em_andamento' THEN 2
+        WHEN status = 'resolvido' THEN 3
+        ELSE 4
+    END,
+    criado_em DESC; `
+
+    const result= await pool.query(query,[id])
+res.render('chamados',{chamados:result.rows})
+})
 
 
 
