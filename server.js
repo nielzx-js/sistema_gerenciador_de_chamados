@@ -262,7 +262,46 @@ app.get('/resetpassword',(req,res)=>{
     res.render('resetpassword')
 })
 
+app.get('/add',verificarLogin,async (req,res)=>{
+    res.render('novoChamado')
+})
+
+
 //CRUD
+
+app.post('/add',verificarLogin, async (req,res)=>{
+    const { titulo, descricao, prioridade } = req.body;
+    const usuarioId = req.session.usuario.id;
+    const query=`
+    INSERT INTO chamados (usuario_id,titulo,descricao,prioridade)
+      VALUES ($1, $2, $3, $4);
+    `
+
+  const result = await pool.query(query, [
+    usuarioId,
+    titulo,
+    descricao,
+    prioridade
+]);
+    if (result.rowCount> 0) {
+    return res.send(`
+        <script>
+            alert('Chamado criado com sucesso!');
+            window.location.href = '/add';
+        </script>
+    `);
+    } else {
+    return res.send(`
+        <script>
+            alert('Não foi possível criar um chamado novo.  ');
+            window.location.href = '/add';
+        </script>
+    `);
+    }
+})
+
+
+
 app.post('/editar/:id',verificarLogin, async (req,res)=>{
 const { titulo, descricao, prioridade} = req.body;
     const query=`
@@ -315,8 +354,9 @@ res.render('chamados',{chamados:result.rows})
 
 
 
+
 //logout
-app.post('/logout',(req,res,next)=>{
+app.get('/logout',(req,res,next)=>{
     req.session.destroy((err)=>{
         if(err){
             return next(err)

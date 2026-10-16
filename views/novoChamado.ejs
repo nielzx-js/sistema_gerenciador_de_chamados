@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adicionar</title>
+    <link rel="stylesheet" href="css/style.css">   
+    <style>
+         body{
+            background-color:#0b080b;
+         }
+         .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+}
+label{
+    color:aliceblue;
+}
+    </style>
+</head>
+<body>
+   <div class="container">
+    <form method="POST" action="/add">
+        <label for="titulo">Insira o titulo:</label>
+        <input name="titulo" type="text"><br>
+        <label for="descricao">Insira uma descricao</label><br>
+        <textarea name="descricao"></textarea><br>
+        <label for="prioridade">Qual a prioridade?</label>
+        <select name="prioridade">
+             <option value="critica">Crítica</option>
+            <option value="alta">Alta</option>
+            <option value="media">Média</option>
+            <option value="baixa">Baixa</option>    
+        </select><br>
+        <button type="submit">Enviar</button>
+    </form> 
+    </div>
+    
+    <%- include('partials/menu') %>
+</body>
+</html>
