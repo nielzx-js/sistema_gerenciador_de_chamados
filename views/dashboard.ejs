@@ -4,14 +4,73 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tela inicial</title>
+    <link rel="stylesheet" href="css/style.css">   
     <style> 
-    
+    body{
+        background-color:#0b080b;
+    }
+    .textoSec{
+        color:#B7A8B5;
+    }
+     .container {
+        display: flex;
+        justify-content: center;
+        }   
+        .textoPrin{
+            color:#F4EDF3;
+        }
+      .aberto {
+    border-left: 4px solid #FBBF24;
+}
+
+.em_andamento {
+    border-left: 4px solid #FB923C;
+}
+
+.resolvido {
+    border-left: 4px solid #4ADE80;
+}
+.chamado {
+    background-color: #160f15;
+    color: #F4EDF3;
+    border: 1px solid #51404F;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 12px;
+}
+
+.detalhes-chamado {
+    color: #B7A8B5;
+    margin-top: 12px;
+}
+.lista-chamados {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+}
     </style>
 </head>
 <body>
-    <p>logados</p>
+    <p class="textoSec">logados</p>
     <form method="POST" action="/logout">
         <button type="submit">Deslogar</button>
     </form>
+    <div class="lista-chamados">
+        <% chamados.forEach(chamado=>{ %>
+            <div class="chamado <%=chamado.prioridade %>">
+                <details>
+                    <summary><h3><%=chamado.titulo %></h3></summary>
+                      <div class="detalhes-chamado">
+                      <p><%= chamado.descricao %></p>
+                      <p>Prioridade: <%= chamado.prioridade %></p>
+                      <p>Status: <%= chamado.status %></p>
+                      <p>Aberto em: <%= chamado.criado_em %></p>
+                     </div>
+                </details>
+             
+               
+            </div>
+       <% }) %>
+    </div>
 </body>
 </html>

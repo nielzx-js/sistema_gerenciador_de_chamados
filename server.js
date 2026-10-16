@@ -80,9 +80,26 @@ app.post('/login', async (req,res)=>{
 
 
 //inicio
-app.get('/inicio',verificarLogin,(req,res)=>{
-    res.render("dashboard")
+app.get('/inicio',verificarLogin,async (req,res)=>{
+   const id = req.session.usuario.id
+    const query=`
+    SELECT *
+    FROM chamados
+    WHERE usuario_id = $1
+    ORDER BY
+    CASE
+        WHEN status = 'aberto' THEN 1
+        WHEN status = 'em_andamento' THEN 2
+        WHEN status = 'resolvido' THEN 3
+        ELSE 4
+    END,
+    criado_em DESC; `
+
+    const result= await pool.query(query,[id])
+
+    res.render("dashboard",{chamados: result.rows})
 })
+
 
 
 //cadastro
