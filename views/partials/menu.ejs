@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+     <link rel="stylesheet" href="css/style.css">  
+    <style>
+        
+.menu-lateral {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 250px;
+    height: 100vh;
+    padding: 20px 14px;
+    box-sizing: border-box;
+
+    display: flex;
+    flex-direction: column;
+
+    background: #160f15;
+    border-right: 1px solid #51404F;
+    color: #F4EDF3;
+
+    transition: width 0.3s ease;
+    z-index: 1000;
+}
+
+.menu-cabecalho {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 35px;
+}
+
+.menu-logo {
+    margin: 0;
+    font-size: 20px;
+    color: #A875A0;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.menu-toggle {
+    flex-shrink: 0;
+    padding: 8px 10px;
+    background: #211720;
+    border: 1px solid #51404F;
+    border-radius: 8px;
+    color: #F4EDF3;
+    cursor: pointer;
+}
+
+.menu-toggle:hover {
+    background: #2c1e2a;
+}
+
+.menu-links {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.menu-link {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px;
+    border-radius: 8px;
+
+    color: #B7A8B5;
+    text-decoration: none;
+    white-space: nowrap;
+    overflow: hidden;
+
+    transition: background 0.2s, color 0.2s;
+}
+
+.menu-link:hover {
+    background: #2c1e2a;
+    color: #F4EDF3;
+}
+
+.menu-icone {
+    min-width: 24px;
+    text-align: center;
+    font-size: 20px;
+}
+
+.menu-rodape {
+    margin-top: auto;
+}
+
+/* Menu recolhido */
+.menu-lateral.recolhido {
+    width: 72px;
+}
+
+.menu-lateral.recolhido .menu-logo,
+.menu-lateral.recolhido .menu-texto {
+    display: none;
+}
+
+.menu-lateral.recolhido .menu-cabecalho {
+    justify-content: center;
+}
+
+.menu-lateral.recolhido .menu-link {
+    justify-content: center;
+    padding: 12px 8px;
+}
+
+/* Adaptação para telas menores */
+@media (max-width: 600px) {
+    .menu-lateral {
+        width: 220px;
+    }
+
+    .menu-lateral.recolhido {
+        width: 0;
+        padding: 20px 0;
+        overflow: hidden;
+        border: none;
+    }
+}
+
+    </style>
+</head>
+<body>
+    <aside class="menu-lateral" id="menuLateral">
+    <div class="menu-cabecalho">
+        <h2 class="menu-logo">BLACKLOG</h2>
+
+        <button
+            type="button"
+            class="menu-toggle"
+            id="menuToggle"
+            aria-label="Recolher menu"
+            aria-expanded="true"
+        >
+            ☰
+        </button>
+    </div>
+
+    <nav class="menu-links">
+        <a href="/inicio" class="menu-link">
+            <span class="menu-icone">⌂</span>
+            <span class="menu-texto">Início</span>
+        </a>
+
+        <a href="/chamados" class="menu-link">
+            <span class="menu-icone">▤</span>
+            <span class="menu-texto">Meus chamados</span>
+        </a>
+
+        <a href="/novo-chamado" class="menu-link">
+            <span class="menu-icone">＋</span>
+            <span class="menu-texto">Novo chamado</span>
+        </a>
+
+        <a href="/configuracoes" class="menu-link">
+            <span class="menu-icone">⚙</span>
+            <span class="menu-texto">Configurações</span>
+        </a>
+    </nav>
+
+    <div class="menu-rodape">
+        <a href="/logout" class="menu-link">
+            <span class="menu-icone">↪</span>
+            <span class="menu-texto">Sair</span>
+        </a>
+    </div>
+</aside>
+
+<script>
+    const menuLateral = document.getElementById('menuLateral');
+    const menuToggle = document.getElementById('menuToggle');
+
+    menuToggle.addEventListener('click', () => {
+        const recolhido = menuLateral.classList.toggle('recolhido');
+
+        menuToggle.setAttribute('aria-expanded', !recolhido);
+        menuToggle.setAttribute(
+            'aria-label',
+            recolhido ? 'Expandir menu' : 'Recolher menu'
+        );
+    });
+</script>
+
+</body>
+</html>
