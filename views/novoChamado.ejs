@@ -1,41 +1,168 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Adicionar</title>
     <link rel="stylesheet" href="css/style.css">   
     <style>
-         body{
-            background-color:#0b080b;
-         }
-         .container {
+        :root {
+            --bg-main: #0b080b;
+            --bg-card: #160f15;
+            --bg-input: #211720;
+            --bg-hover: #2c1e2a;
+            --text-main: #F4EDF3;
+            --text-secondary: #B7A8B5;
+            --accent-action: #A875A0;
+            --border-color: #51404F;
+            --priority-critical: #F87171;
+            --priority-high: #FB923C;
+            --priority-medium: #FBBF24;
+            --priority-low: #60A5FA;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            min-height: 100vh;
+        }
+
+        .container {
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-}
-label{
-    color:aliceblue;
-}
+            padding: 20px;
+        }
+
+        .add {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 32px;
+            width: 100%;
+            max-width: 480px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            color: var(--text-main);
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        input[type="text"],
+        textarea,
+        select {
+            width: 100%;
+            background-color: var(--bg-input);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            color: var(--text-main);
+            font-size: 15px;
+            padding: 12px;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        input[type="text"]::placeholder,
+        textarea::placeholder {
+            color: var(--text-secondary);
+        }
+
+        input[type="text"]:focus,
+        textarea:focus,
+        select:focus {
+            border-color: var(--accent-action);
+            background-color: var(--bg-hover);
+            box-shadow: 0 0 0 3px rgba(168, 117, 160, 0.2);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 110px;
+        }
+
+        select {
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23B7A8B5' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 16px;
+            padding-right: 40px;
+        }
+
+        select option {
+            background-color: var(--bg-card);
+            color: var(--text-main);
+        }
+        select option[value="critica"] { color: var(--priority-critical); }
+        select option[value="alta"] { color: var(--priority-high); }
+        select option[value="media"] { color: var(--priority-medium); }
+        select option[value="baixa"] { color: var(--priority-low); }
+
+        button[type="submit"] {
+            width: 100%;
+            padding: 14px;
+            margin-top: 10px;
+            background-color: var(--accent-action);
+            color: #000000;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+        }
+
+        button[type="submit"]:hover {
+            background-color: #b885b0;
+        }
+
+        button[type="submit"]:active {
+            transform: scale(0.99);
+        }
     </style>
 </head>
 <body>
-   <div class="container">
-    <form method="POST" action="/add">
-        <label for="titulo">Insira o titulo:</label>
-        <input name="titulo" type="text"><br>
-        <label for="descricao">Insira uma descricao</label><br>
-        <textarea name="descricao"></textarea><br>
-        <label for="prioridade">Qual a prioridade?</label>
-        <select name="prioridade">
-             <option value="critica">Crítica</option>
-            <option value="alta">Alta</option>
-            <option value="media">Média</option>
-            <option value="baixa">Baixa</option>    
-        </select><br>
-        <button type="submit">Enviar</button>
-    </form> 
+    <div class="container">
+        <form method="POST" action="/add" class="add">
+            <div class="form-group">
+                <label for="titulo">Insira o título:</label>
+                <input id="titulo" name="titulo" type="text" placeholder="Ex: Ajustar banco de dados" required>
+            </div>
+
+            <div class="form-group">
+                <label for="descricao">Insira uma descrição:</label>
+                <textarea id="descricao" name="descricao" placeholder="Detalhes sobre a tarefa..."></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="prioridade">Qual a prioridade?</label>
+                <select id="prioridade" name="prioridade">
+                    <option value="critica">Crítica</option>
+                    <option value="alta">Alta</option>
+                    <option value="media" selected>Média</option>
+                    <option value="baixa">Baixa</option>    
+                </select>
+            </div>
+
+            <button type="submit">Enviar</button>
+        </form> 
     </div>
     
     <%- include('partials/menu') %>
