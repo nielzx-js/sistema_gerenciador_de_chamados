@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tela inicial</title>
     <link rel="stylesheet" href="css/style.css">   
-     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&icon_names=edit" />
     <style> 
 
     body{
@@ -21,6 +20,53 @@
         .textoPrin{
             color:#F4EDF3;
         }
+        .cabecalho-chamados {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .cabecalho-chamados h1,
+        .cabecalho-chamados p {
+            margin: 0;
+        }
+        .novo-chamado-link {
+            display: inline-flex;
+            align-items: center;
+            min-height: 42px;
+            padding: 9px 14px;
+            border: 1px solid #A875A0;
+            border-radius: 8px;
+            background: #A875A0;
+            color: #000000;
+            font-weight: 700;
+            text-decoration: none;
+        }
+        .novo-chamado-link:hover {
+            background: #2c1e2a;
+            color: #F4EDF3;
+        }
+        .chamados-vazios {
+            padding: 24px;
+            border: 1px solid #51404F;
+            border-radius: 12px;
+            background: #160f15;
+            color: #B7A8B5;
+            text-align: center;
+        }
+        .chamados-vazios h2 {
+            color: #F4EDF3;
+        }
+        .status-chamado {
+            flex: 0 0 auto;
+            padding: 4px 9px;
+            border: 1px solid #51404F;
+            border-radius: 999px;
+            color: #B7A8B5;
+            font-size: 0.85rem;
+        }
       .aberto {
     border-left: 4px solid #FBBF24;
 }
@@ -32,6 +78,18 @@
 .resolvido {
     border-left: 4px solid #4ADE80;
 }
+.critica {
+    border-left: 4px solid #F87171;
+}
+.alta {
+    border-left: 4px solid #FB923C;
+}
+.media {
+    border-left: 4px solid #FBBF24;
+}
+.baixa {
+    border-left: 4px solid #60A5FA;
+}
 .chamado {
     width: 100%;
     box-sizing: border-box;
@@ -41,19 +99,9 @@
     border-radius: 8px;
     padding: 12px;
 }
-.main-content {
-    margin-left: 220px;
-    padding: 30px;
-}
 .detalhes-chamado {
     color: #B7A8B5;
     margin-top: 12px;
-}
-.lista-chamados {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 16px;
-    align-items: start
 }
 .botao{
     background:none;
@@ -70,70 +118,126 @@
     flex-direction: column;
     gap: 10px;
 }
+.form-edicao {
+    margin-top: 14px;
+}
+.form-edicao label {
+    color: #F4EDF3;
+    font-weight: 700;
+}
+.form-edicao input,
+.form-edicao textarea,
+.form-edicao select {
+    min-height: 40px;
+    padding: 9px 10px;
+    border: 1px solid #51404F;
+    border-radius: 6px;
+    background: #211720;
+    color: #F4EDF3;
+    font: inherit;
+}
+.form-edicao textarea {
+    min-height: 100px;
+    resize: vertical;
+}
+.form-edicao button {
+    min-height: 40px;
+    border: 0;
+    border-radius: 6px;
+    background: #A875A0;
+    color: #000000;
+    font: inherit;
+    font-weight: 700;
+    cursor: pointer;
+}
 .botaoDeletar {
     background: none;
-    border: 1px solid red;
-    color: red;
+    border: 1px solid #F87171;
+    color: #F87171;
     border-radius: 30px;
     margin-left: auto;
     cursor:pointer;
 }
+.chamado details summary {
+    color: #A875A0;
+    cursor: pointer;
+}
+@media (max-width: 600px) {
+    .cabecalho-chamados {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+}
     </style>
 </head>
 <body>
-    <p class="textoSec">logados</p>
-    <form method="POST" action="/logout">
-        <button type="submit">Deslogar</button>
-    </form>
     <main class="main-content">
+        <header class="cabecalho-chamados">
+            <div>
+                <h1 class="textoPrin">Meus chamados</h1>
+                <p class="textoSec">Consulte e edite seus chamados.</p>
+            </div>
+            <a class="novo-chamado-link" href="/add">＋ Novo chamado</a>
+        </header>
+        <% if (chamados.length === 0) { %>
+            <section class="chamados-vazios">
+                <h2>Nenhum chamado cadastrado</h2>
+                <p>Crie um chamado para começar a acompanhar suas solicitações.</p>
+                <a class="novo-chamado-link" href="/add">Criar chamado</a>
+            </section>
+        <% } else { %>
         <div class="lista-chamados">
         <% chamados.forEach(chamado=>{ %>
             <div class="chamado <%=chamado.prioridade %>">
+                <div class="chamado-cabecalho">
+                    <h3><%= chamado.titulo %></h3>
+                    <span class="status-chamado"><%= chamado.status === 'em_andamento' ? 'Em análise' : chamado.status === 'resolvido' ? 'Resolvido' : chamado.status === 'aberto' ? 'Aberto' : chamado.status %></span>
+                </div>
+                <div class="chamado-acoes">
+                    <button class="botao" type="button" aria-controls="form-edicao-<%= chamado.id %>" aria-expanded="false" onclick="abrirEdicao(<%= chamado.id %>, this)">✎ Editar</button>
+                    <form action="/deletar/<%= chamado.id %>" method="POST"
+                        onsubmit="return confirm('Tem certeza que deseja excluir este chamado?')">
+                        <button type="submit" class="botaoDeletar">Excluir</button>
+                    </form>
+                </div>
                 <details>
-                    <summary><h3><%=chamado.titulo %></h3> <button class="botao" onclick="abrirEdicao(<%= chamado.id %>)"><span class="material-symbols-outlined">edit</span></button>
-                        <form action="/deletar/<%= chamado.id %>" method="POST"
-                        onsubmit="return confirm('Tem certeza que deseja excluir este chamado?')"
-                        style="display: inline;">
-                        <button type="submit" class="botaoDeletar">Deletar</button>
-
-</form></summary>
-                 
-                      <div class="detalhes-chamado">
-                      <p><%= chamado.descricao %></p>
-                      <p>Prioridade: <%= chamado.prioridade %></p>
-                      <p>Status: <%= chamado.status %></p>
-                      <p>Aberto em: <%= chamado.criado_em %></p>
-                      
-                     </div>
+                    <summary>Ver detalhes</summary>
+                    <div class="detalhes-chamado">
+                        <p><%= chamado.descricao || 'Sem descrição.' %></p>
+                        <p>Prioridade: <%= chamado.prioridade %></p>
+                        <p>Criado em: <%= new Date(chamado.criado_em).toLocaleDateString('pt-BR') %></p>
+                    </div>
                 </details>
-                    <form id="form-edicao-<%=chamado.id%>" class="form-edicao" action="/editar/<%= chamado.id %>" method="POST">
-                    <input type="text" value="<%=chamado.titulo %>" name="titulo">
-                     <textarea name="descricao"><%=chamado.descricao%></textarea>
-        <select name="prioridade">
-             <option value="critica">Crítica</option>
-            <option value="alta">Alta</option>
-            <option value="media">Média</option>
-            <option value="baixa">Baixa</option>    
-        </select>
-
-         <button type="submit">
-                Salvar
-            </button>
-    </form>
-               
+                <form id="form-edicao-<%= chamado.id %>" class="form-edicao" action="/editar/<%= chamado.id %>" method="POST">
+                    <label for="titulo-<%= chamado.id %>">Título</label>
+                    <input id="titulo-<%= chamado.id %>" type="text" value="<%= chamado.titulo %>" name="titulo" required>
+                    <label for="descricao-<%= chamado.id %>">Descrição</label>
+                    <textarea id="descricao-<%= chamado.id %>" name="descricao"><%= chamado.descricao %></textarea>
+                    <label for="prioridade-<%= chamado.id %>">Prioridade</label>
+                    <select id="prioridade-<%= chamado.id %>" name="prioridade">
+                        <option value="critica" <%= chamado.prioridade === 'critica' ? 'selected' : '' %>>Crítica</option>
+                        <option value="alta" <%= chamado.prioridade === 'alta' ? 'selected' : '' %>>Alta</option>
+                        <option value="media" <%= chamado.prioridade === 'media' ? 'selected' : '' %>>Média</option>
+                        <option value="baixa" <%= chamado.prioridade === 'baixa' ? 'selected' : '' %>>Baixa</option>
+                    </select>
+                    <button type="submit">Salvar alterações</button>
+                </form>
             </div>
        <% }) %>
-    </div>
+        </div>
+        <% } %>
     </main>
 
 
     <script>
         
-function abrirEdicao(id) {
+function abrirEdicao(id, botao) {
     const formulario = document.getElementById(`form-edicao-${id}`);
-    formulario.classList.toggle('aberto');
+    const aberto = formulario.classList.toggle('aberto');
+    botao.setAttribute('aria-expanded', aberto);
 }
     </script>
+    <%- include('partials/footer') %>
     <%- include('partials/menu.ejs') %>
 </body>
 </html>

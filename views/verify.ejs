@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -15,6 +15,7 @@
         body {
 
             min-height: 100vh;
+            padding: 20px 12px 64px;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -113,6 +114,21 @@
         .back-link:hover {
             color: #A875A0; 
         }
+
+        @media (max-width: 420px) {
+            .container {
+                padding: 1.5rem 1rem;
+            }
+
+            .otp-container {
+                gap: 0.3rem;
+            }
+
+            .otp-input {
+                width: min(12vw, 2.7rem);
+                height: 3rem;
+            }
+        }
     </style>
 </head>
 <body>
@@ -186,5 +202,6 @@
 });
 
     </script>
+    <%- include('partials/footer') %>
 </body>
 </html>

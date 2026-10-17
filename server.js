@@ -5,6 +5,7 @@ const app = express();
 const nodemailer = require("nodemailer");
 const bcrypt = require('bcrypt');
 const session = require('express-session');
+const { createHash, randomBytes } = require('crypto');
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 app.use(express.static(path.join(__dirname, 'public')));
@@ -33,6 +34,41 @@ const transporter = nodemailer.createTransport({
     greetingTimeout: 10000,
     socketTimeout: 30000
 });
+
+let passwordResetTableReady;
+
+function ensurePasswordResetTable() {
+    if (!passwordResetTableReady) {
+        passwordResetTableReady = pool.query(`
+            CREATE TABLE IF NOT EXISTS password_reset_tokens (
+                email TEXT PRIMARY KEY,
+                token_hash TEXT NOT NULL UNIQUE,
+                expires_at TIMESTAMPTZ NOT NULL
+            );
+        `).then(() => undefined).catch(error => {
+            passwordResetTableReady = undefined;
+            throw error;
+        });
+    }
+
+    return passwordResetTableReady;
+}
+
+function getPublicBaseUrl() {
+    if (process.env.APP_URL) {
+        const appUrl = new URL(process.env.APP_URL);
+        if (appUrl.protocol !== 'http:' && appUrl.protocol !== 'https:') {
+            throw new Error('APP_URL precisa usar HTTP ou HTTPS.');
+        }
+        return appUrl.origin;
+    }
+
+    if (process.env.NODE_ENV === 'production') {
+        throw new Error('Configure APP_URL para habilitar a recuperação de senha.');
+    }
+
+    return `http://localhost:${process.env.PORT || 3000}`;
+}
 
 //session
 app.use(session({
@@ -77,11 +113,35 @@ app.post('/login', async (req,res)=>{
     res.redirect('/inicio')
 })
 
+//configurações
+app.get('/configuracoes',async (req,res)=>{
+   try {
+        const resposta = await fetch('https://api.github.com/users/nielzx-js');
+        const usuario = await resposta.json();
 
+        res.render('config', { usuario });
+    } catch (erro) {
+        console.error(erro);
+        res.status(500).send('Erro ao carregar perfil do GitHub');
+    }
+})
 
 //inicio
-app.get('/inicio',(req,res)=>{
-    res.render('dashboard')
+app.get('/inicio',verificarLogin,async (req,res)=>{
+    const usuarioId = req.session.usuario.id;
+    const result = await pool.query(`
+        SELECT *
+        FROM chamados
+        WHERE usuario_id = $1
+        ORDER BY criado_em DESC;
+    `, [usuarioId]);
+    const chamadosResolvidos = result.rows.filter(chamado => chamado.status === 'resolvido').length;
+
+    res.render('dashboard', {
+        chamados: result.rows,
+        totalChamados: result.rows.length,
+        chamadosResolvidos
+    });
 })
 
 
@@ -259,7 +319,215 @@ app.get('/status-db', async (req, res) => {
 
 //recuperação de senha
 app.get('/resetpassword',(req,res)=>{
-    res.render('resetpassword')
+    res.render('resetpassword', { mode: 'request' });
+})
+
+app.post('/resetpassword', async (req,res)=>{
+    const email = typeof req.body.email === 'string' ? req.body.email.trim() : '';
+    const mensagemGenerica = 'Se o e-mail estiver cadastrado, você receberá um link para redefinir sua senha.';
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        return res.status(400).render('resetpassword', {
+            mode: 'request',
+            error: 'Informe um e-mail válido.'
+        });
+    }
+
+    try {
+        const baseUrl = getPublicBaseUrl();
+        await ensurePasswordResetTable();
+
+        const userResult = await pool.query(
+            'SELECT email FROM usuarios WHERE email = $1',
+            [email]
+        );
+
+        if (userResult.rowCount === 0) {
+            return res.render('resetpassword', {
+                mode: 'request',
+                message: mensagemGenerica
+            });
+        }
+
+        const token = randomBytes(32).toString('hex');
+        const tokenHash = createHash('sha256').update(token).digest('hex');
+        await pool.query(`
+            INSERT INTO password_reset_tokens (email, token_hash, expires_at)
+            VALUES ($1, $2, NOW() + INTERVAL '1 hour')
+            ON CONFLICT (email)
+            DO UPDATE SET token_hash = EXCLUDED.token_hash,
+                          expires_at = EXCLUDED.expires_at;
+        `, [userResult.rows[0].email, tokenHash]);
+
+        const resetUrl = new URL(`/resetpassword/${token}`, `${baseUrl}/`).toString();
+        try {
+            await transporter.sendMail({
+                from: process.env.EMAIL,
+                to: userResult.rows[0].email,
+                subject: 'Redefinição de senha - BLACKLOG',
+                text: `Use este link para criar uma nova senha. Ele expira em 1 hora: ${resetUrl}`,
+                html: `
+                    <div style="background:#0b080b;color:#F4EDF3;padding:32px;font-family:Arial,sans-serif">
+                        <div style="max-width:520px;margin:auto;background:#160f15;border:1px solid #51404F;border-radius:12px;padding:28px">
+                            <h1 style="color:#A875A0">Redefinir senha</h1>
+                            <p>Recebemos uma solicitação para redefinir a senha da sua conta BLACKLOG.</p>
+                            <p><a href="${resetUrl}" style="display:inline-block;padding:12px 18px;background:#A875A0;color:#000;text-decoration:none;border-radius:6px">Criar nova senha</a></p>
+                            <p style="color:#B7A8B5">O link expira em 1 hora. Se você não solicitou a troca, ignore este e-mail.</p>
+                        </div>
+                    </div>
+                `
+            });
+        } catch (error) {
+            await pool.query(
+                'DELETE FROM password_reset_tokens WHERE email = $1 AND token_hash = $2',
+                [userResult.rows[0].email, tokenHash]
+            );
+            throw error;
+        }
+
+        return res.render('resetpassword', {
+            mode: 'request',
+            message: mensagemGenerica
+        });
+    } catch (error) {
+        console.error('Erro ao iniciar recuperação de senha:', error);
+        return res.status(500).render('resetpassword', {
+            mode: 'request',
+            error: 'Não foi possível enviar o link agora. Verifique a configuração de e-mail e tente novamente.'
+        });
+    }
+})
+
+app.get('/resetpassword/:token', async (req,res)=>{
+    const token = req.params.token;
+    if (!/^[a-f0-9]{64}$/.test(token)) {
+        return res.status(400).render('resetpassword', {
+            mode: 'invalid',
+            error: 'Este link de redefinição é inválido ou expirou.'
+        });
+    }
+
+    try {
+        await ensurePasswordResetTable();
+        const tokenHash = createHash('sha256').update(token).digest('hex');
+        const result = await pool.query(`
+            SELECT email
+            FROM password_reset_tokens
+            WHERE token_hash = $1
+              AND expires_at > NOW();
+        `, [tokenHash]);
+
+        if (result.rowCount === 0) {
+            return res.status(400).render('resetpassword', {
+                mode: 'invalid',
+                error: 'Este link de redefinição é inválido ou expirou.'
+            });
+        }
+
+        return res.render('resetpassword', {
+            mode: 'new-password',
+            token
+        });
+    } catch (error) {
+        console.error('Erro ao validar link de recuperação de senha:', error);
+        return res.status(500).render('resetpassword', {
+            mode: 'invalid',
+            error: 'Não foi possível validar o link agora. Tente novamente mais tarde.'
+        });
+    }
+})
+
+app.post('/resetpassword/:token', async (req,res)=>{
+    const token = req.params.token;
+    const { senhaNova, confirmarSenha } = req.body;
+
+    if (!/^[a-f0-9]{64}$/.test(token)) {
+        return res.status(400).render('resetpassword', {
+            mode: 'invalid',
+            error: 'Este link de redefinição é inválido ou expirou.'
+        });
+    }
+
+    if (typeof senhaNova !== 'string' || senhaNova.length < 8) {
+        return res.status(400).render('resetpassword', {
+            mode: 'new-password',
+            token,
+            error: 'A nova senha precisa ter pelo menos 8 caracteres.'
+        });
+    }
+
+    if (senhaNova !== confirmarSenha) {
+        return res.status(400).render('resetpassword', {
+            mode: 'new-password',
+            token,
+            error: 'As senhas não coincidem.'
+        });
+    }
+
+    let client;
+    try {
+        await ensurePasswordResetTable();
+        client = await pool.connect();
+        await client.query('BEGIN');
+
+        const tokenHash = createHash('sha256').update(token).digest('hex');
+        const tokenResult = await client.query(`
+            SELECT email
+            FROM password_reset_tokens
+            WHERE token_hash = $1
+              AND expires_at > NOW()
+            FOR UPDATE;
+        `, [tokenHash]);
+
+        if (tokenResult.rowCount === 0) {
+            await client.query('ROLLBACK');
+            return res.status(400).render('resetpassword', {
+                mode: 'invalid',
+                error: 'Este link de redefinição é inválido ou expirou.'
+            });
+        }
+
+        const senhaHash = await bcrypt.hash(senhaNova, 10);
+        const updateResult = await client.query(
+            'UPDATE usuarios SET senha = $1 WHERE email = $2',
+            [senhaHash, tokenResult.rows[0].email]
+        );
+
+        if (updateResult.rowCount === 0) {
+            await client.query('ROLLBACK');
+            return res.status(400).render('resetpassword', {
+                mode: 'invalid',
+                error: 'Não foi possível localizar a conta para este link.'
+            });
+        }
+
+        await client.query(
+            'DELETE FROM password_reset_tokens WHERE email = $1',
+            [tokenResult.rows[0].email]
+        );
+        await client.query('COMMIT');
+
+        return res.render('resetpassword', {
+            mode: 'complete',
+            message: 'Sua senha foi alterada. Você já pode entrar com a nova senha.'
+        });
+    } catch (error) {
+        if (client) {
+            try {
+                await client.query('ROLLBACK');
+            } catch (rollbackError) {
+                console.error('Erro ao desfazer transação de redefinição de senha:', rollbackError);
+            }
+        }
+        console.error('Erro ao redefinir senha:', error);
+        return res.status(500).render('resetpassword', {
+            mode: 'new-password',
+            token,
+            error: 'Não foi possível redefinir a senha agora. Tente novamente mais tarde.'
+        });
+    } finally {
+        if (client) client.release();
+    }
 })
 
 app.get('/add',verificarLogin,async (req,res)=>{
@@ -352,6 +620,29 @@ app.get('/chamados',verificarLogin, async (req,res)=>{
 res.render('chamados',{chamados:result.rows})
 })
 
+app.post('/chamados/:id/status',verificarLogin,async (req,res)=>{
+    const { status } = req.body;
+    const statusesPermitidos = ['em_andamento', 'resolvido'];
+
+    if (!statusesPermitidos.includes(status)) {
+        return res.status(400).send('Status inválido.');
+    }
+
+    const result = await pool.query(`
+        UPDATE chamados
+        SET status = $1,
+            atualizado_em = CURRENT_TIMESTAMP
+        WHERE id = $2
+        AND usuario_id = $3;
+    `, [status, req.params.id, req.session.usuario.id]);
+
+    if (result.rowCount === 0) {
+        return res.status(404).send('Chamado não encontrado.');
+    }
+
+    return res.redirect('/inicio');
+})
+
 
 app.post('/deletar/:id',async (req,res)=>{
     const id = req.params.id
@@ -376,6 +667,22 @@ app.post('/deletar/:id',async (req,res)=>{
 
     }
 })
+
+
+
+
+app.get('/sobre-mim', async (req, res) => {
+    try {
+        const resposta = await fetch('https://api.github.com/users/nielzx-js');
+        const usuario = await resposta.json();
+
+        res.render('sobre-mim', { usuario });
+    } catch (erro) {
+        console.error(erro);
+        res.status(500).send('Erro ao carregar o perfil do GitHub');
+    }
+});
+
 
 //logout
 app.get('/logout',(req,res,next)=>{

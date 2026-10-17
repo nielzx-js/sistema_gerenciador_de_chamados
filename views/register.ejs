@@ -17,7 +17,8 @@
         body{
             background-color:#0b080b;
              margin: 0;
-             height: 100vh;
+             min-height: 100vh;
+             padding: 20px 16px 64px;
              display: flex;
              justify-content: center; 
              align-items: center;     
@@ -25,7 +26,8 @@
             radial-gradient(circle at 20% 40%, rgba(168, 117, 160, 0.22) 0%,transparent 50%),
             radial-gradient(circle at 80% 60%,rgba(100, 80, 150, 0.18) 0%,transparent 50%);
             position: relative;
-            overflow: hidden;
+            overflow-x: hidden;
+            overflow-y: auto;
         }
         .registro{
             font-size:30px
@@ -56,19 +58,20 @@
             text-align: center;
             padding: 10px;
             gap: 10px;    
-            width:400px;
+            width:min(100%, 400px);
         
         }
        .container {
         display: flex;
-     justify-content: center;
+        width: 100%;
+        justify-content: center;
         }   
         input{
             margin-top:3px;
             border:2px solid #51404F;   
             border-radius:10px;
             height:20px;
-            width: 245px;
+            width: min(100%, 320px);
             background-color:rgb(89, 62, 97);
             color:#B7A8B5;
         }
@@ -80,13 +83,25 @@
        width: 100%;
         }
         .input-container input {
-         margin-top: 0;
-            }
+            flex: 1;
+            width: auto;
+            min-width: 0;
+            margin-top: 0;
+        }
             .toggle-icon {
     color: #B7A8B5;
     cursor: pointer;
     font-size: 1.1rem;
 }
+        @media (max-width: 480px) {
+            .centro {
+                padding: 18px 14px;
+            }
+
+            .input-container input {
+                min-width: 0;
+            }
+        }
     </style>
 </head>
 <body>
@@ -120,5 +135,6 @@
    
     </script>
 
+    <%- include('partials/footer') %>
 </body>
 </html>

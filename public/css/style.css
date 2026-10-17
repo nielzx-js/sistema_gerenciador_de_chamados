@@ -1,6 +1,264 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Lora:ital,wght@0,400..700;1,400..700&family=Nunito:ital,wght@0,200..1000;1,200..1000&family=Roboto+Mono:ital,wght@0,100..700;1,100..700&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&icon_names=edit" />
+
 body {
+  min-width: 320px;
+  margin: 0;
   font-family: "Nunito", sans-serif;
   font-optical-sizing: auto;
-}   
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+.site-footer {
+  position: fixed;
+  right: 16px;
+  bottom: 12px;
+  z-index: 900;
+  padding: 7px 11px;
+  border: 1px solid rgba(81, 64, 79, 0.8);
+  border-radius: 999px;
+  background: rgba(22, 15, 21, 0.92);
+  color: #B7A8B5;
+  font: 12px/1.4 "Nunito", sans-serif;
+  opacity: 0.82;
+  transition: opacity 0.2s ease, border-color 0.2s ease;
+}
+
+.site-footer:hover {
+  border-color: #A875A0;
+  opacity: 1;
+}
+
+.site-footer a {
+  color: #A875A0;
+  text-decoration: none;
+}
+
+.site-footer a:hover {
+  text-decoration: underline;
+}
+
+.menu-lateral {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+  display: flex;
+  box-sizing: border-box;
+  width: 250px;
+  height: 100vh;
+  padding: 20px 14px;
+  flex-direction: column;
+  border-right: 1px solid #51404F;
+  background: #160f15;
+  color: #F4EDF3;
+  transition: width 0.3s ease;
+}
+
+.menu-cabecalho {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 35px;
+}
+
+.menu-logo {
+  overflow: hidden;
+  margin: 0;
+  color: #A875A0;
+  font-size: 20px;
+  white-space: nowrap;
+}
+
+.menu-toggle {
+  flex-shrink: 0;
+  padding: 8px 10px;
+  border: 1px solid #51404F;
+  border-radius: 8px;
+  background: #211720;
+  color: #F4EDF3;
+  cursor: pointer;
+}
+
+.menu-toggle:hover,
+.menu-link:hover {
+  background: #2c1e2a;
+}
+
+.menu-links {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.menu-link {
+  display: flex;
+  overflow: hidden;
+  align-items: center;
+  gap: 14px;
+  padding: 12px;
+  border-radius: 8px;
+  color: #B7A8B5;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background 0.2s, color 0.2s;
+}
+
+.menu-link:hover {
+  color: #F4EDF3;
+}
+
+.menu-icone {
+  min-width: 24px;
+  font-size: 20px;
+  font-weight: 800;
+  text-align: center;
+}
+
+.menu-rodape {
+  margin-top: auto;
+}
+
+.menu-lateral.recolhido {
+  width: 72px;
+}
+
+.menu-lateral.recolhido .menu-logo,
+.menu-lateral.recolhido .menu-texto {
+  display: none;
+}
+
+.menu-lateral.recolhido .menu-cabecalho {
+  justify-content: center;
+}
+
+.menu-lateral.recolhido .menu-link {
+  justify-content: center;
+  padding: 12px 8px;
+}
+
+.main-content {
+  min-width: 0;
+  margin-left: 250px;
+  padding: 30px;
+}
+
+.lista-chamados {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+  align-items: start;
+  gap: 16px;
+}
+
+.chamado {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.chamado-cabecalho,
+.chamado-acoes {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.chamado-cabecalho {
+  justify-content: space-between;
+}
+
+.chamado-cabecalho h3 {
+  min-width: 0;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.chamado-acoes {
+  margin: 12px 0;
+}
+
+.chamado-acoes form {
+  margin: 0;
+}
+
+.form-edicao {
+  min-width: 0;
+}
+
+.form-edicao input,
+.form-edicao textarea,
+.form-edicao select {
+  width: 100%;
+  max-width: 100%;
+}
+
+.perfil {
+  max-width: 1000px;
+  min-height: 100vh;
+  margin: 0 auto 0 250px;
+  padding: 40px clamp(20px, 5vw, 64px);
+}
+
+.add-container {
+  margin-left: 250px;
+}
+
+@media (max-width: 600px) {
+  .site-footer {
+    right: 10px;
+    bottom: 8px;
+    font-size: 11px;
+  }
+
+  .menu-lateral {
+    width: 220px;
+  }
+
+  .menu-lateral.recolhido {
+    width: 72px;
+    padding: 20px 6px;
+  }
+
+  .main-content {
+    margin-left: 72px;
+    padding: 22px 14px 76px;
+  }
+
+  .perfil {
+    min-height: auto;
+    margin-left: 72px;
+    padding: 32px 16px 76px;
+  }
+
+  .add-container {
+    margin-left: 72px;
+    padding: 18px 12px 72px;
+  }
+}
+
+@media (max-width: 420px) {
+  .menu-lateral.recolhido {
+    width: 58px;
+    padding-right: 4px;
+    padding-left: 4px;
+  }
+
+  .main-content {
+    margin-left: 58px;
+    padding-right: 10px;
+    padding-left: 10px;
+  }
+
+  .perfil {
+    margin-left: 58px;
+    padding-right: 12px;
+    padding-left: 12px;
+  }
+
+  .add-container {
+    margin-left: 58px;
+  }
+}

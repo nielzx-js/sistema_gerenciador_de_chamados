@@ -10,7 +10,8 @@
         body{
             background-color:#0b080b;
              margin: 0;
-             height: 100vh;
+             min-height: 100vh;
+             padding: 20px 16px 64px;
              display: flex; 
              justify-content: center; 
              align-items: center;     
@@ -18,7 +19,8 @@
             radial-gradient(circle at 20% 40%, rgba(168, 117, 160, 0.22) 0%,transparent 50%),
             radial-gradient(circle at 80% 60%,rgba(100, 80, 150, 0.18) 0%,transparent 50%);
             position: relative;
-            overflow: hidden;
+            overflow-x: hidden;
+            overflow-y: auto;
         }
         .login{
             font-size:50px
@@ -49,21 +51,28 @@
             text-align: center;
             padding: 10px;
             gap: 10px;    
-            width:400px;
+            width:min(100%, 400px);
         
         }
        .container {
         display: flex;
-     justify-content: center;
+        width: 100%;
+        justify-content: center;
         }   
         input{
             margin-top:3px;
             border:2px solid #51404F;   
             border-radius:10px;
             height:20px;
-            width: 245px;
+            width: min(100%, 320px);
             background-color:rgb(89, 62, 97);
             color:#B7A8B5;
+        }
+
+        @media (max-width: 480px) {
+            .login {
+                font-size: 2.4rem;
+            }
         }
        
     </style>
@@ -74,9 +83,9 @@
   <form class="centro" action="/login" method="POST">
         <h3 class="textos login" >LOGIN</h3>
         <label for="email" class="textos"><strong>Informe seu email:</strong></label>
-        <input name="email" id="email" placeholder="insira seu email." autofocus class="textos">
+        <input type="email" name="email" id="email" placeholder="insira seu email." autocomplete="email" required autofocus class="textos">
         <label for="senha" class="textos"><strong>Insira sua senha:</strong></label>
-        <input name="senha" id="senha" placeholder="Insira sua senha." autofocus class="textos">
+        <input type="password" name="senha" id="senha" placeholder="Insira sua senha." autocomplete="current-password" required class="textos">
         <button type="submit" class="button">Login</button>
         <a href="/resetpassword">Esqueceu sua senha?</a>
         <a href="/register" >Não possui conta? Registre-se</a>
@@ -84,5 +93,6 @@
   
     </div>
   
+    <%- include('partials/footer') %>
 </body>
 </html>
