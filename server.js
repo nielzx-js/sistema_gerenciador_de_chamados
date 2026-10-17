@@ -353,7 +353,29 @@ res.render('chamados',{chamados:result.rows})
 })
 
 
+app.post('/deletar/:id',async (req,res)=>{
+    const id = req.params.id
+    const query =`
+        DELETE FROM chamados WHERE id = $1
+    `
+    const result= await pool.query(query,[id])
+      if (result.rowCount > 0) {
+    return res.send(`
+        <script>
+            alert('Chamado deletado com sucesso!');
+            window.location.href = '/chamados';
+        </script>
+    `);
+    } else {
+    return res.send(`
+        <script>
+            alert('Não foi possível deletar o chamado!');
+            window.location.href = '/chamados';
+        </script>
+    `);
 
+    }
+})
 
 //logout
 app.get('/logout',(req,res,next)=>{

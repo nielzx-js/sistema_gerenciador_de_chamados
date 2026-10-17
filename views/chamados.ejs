@@ -90,7 +90,13 @@
         <% chamados.forEach(chamado=>{ %>
             <div class="chamado <%=chamado.prioridade %>">
                 <details>
-                    <summary><h3><%=chamado.titulo %></h3> <button class="botao" onclick="abrirEdicao(<%= chamado.id %>)"><span class="material-symbols-outlined">edit</span></button><button class="botaoDeletar" onclick="deletar()">Deletar</button></summary>
+                    <summary><h3><%=chamado.titulo %></h3> <button class="botao" onclick="abrirEdicao(<%= chamado.id %>)"><span class="material-symbols-outlined">edit</span></button>
+                        <form action="/deletar/<%= chamado.id %>" method="POST"
+                        onsubmit="return confirm('Tem certeza que deseja excluir este chamado?')"
+                        style="display: inline;">
+                        <button type="submit" class="botaoDeletar">Deletar</button>
+
+</form></summary>
                  
                       <div class="detalhes-chamado">
                       <p><%= chamado.descricao %></p>
